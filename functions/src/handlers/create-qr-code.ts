@@ -23,8 +23,10 @@ export const createQRCode = onCall( async (request) => {
 
   const safeLogoRatio = Math.min(design.logoSizeRatio || 0.15, 0.25);
 
-  if (design.logo && !design.logo.includes(`/users%2F${userId}%2F`)) throw new HttpsError("permission-denied", "Invalid logo source path.");
+  const isUserLogo = design.logo && design.logo.includes(`/users%2F${userId}%2F`);
+  const isPresetLogo = design.logo && design.logo.includes("/images/preset-icons/");
 
+  if (design.logo && !isUserLogo && !isPresetLogo) throw new HttpsError( "permission-denied", "Invalid logo source. Logos must be from your uploads or our presets.");
   const userDoc = await db.collection("users").doc(userId).get();
   if (!userDoc.exists) throw new HttpsError("not-found", "User profile not found.");
   const user = userDoc.data() as User;
